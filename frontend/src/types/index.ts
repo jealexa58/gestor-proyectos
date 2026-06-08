@@ -28,6 +28,14 @@ export interface Project {
   updatedAt?: string;
 }
 
+export interface CreateProjectPayload {
+  name: string;
+  client: string;
+  budget: number;
+  endDate: string;
+  sector: Sector;
+}
+
 // ==========================================
 // SECTOR: SOFTWARE (Kanban y Tareas Ágiles)
 // ==========================================

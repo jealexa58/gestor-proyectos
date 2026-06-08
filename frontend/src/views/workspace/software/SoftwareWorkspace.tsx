@@ -19,7 +19,7 @@ const TYPE_OPTIONS:   TaskType[]     = ['FEATURE', 'BUG', 'TASK'];
 const PRIO_OPTIONS:   TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = COLUMNS.map((c) => ({ value: c.id, label: c.label }));
 
-const EMPTY_FORM: CreateTaskPayload = { title: '', type: 'FEATURE', priority: 'MEDIUM', status: 'BACKLOG' };
+const EMPTY_FORM: CreateTaskPayload = { title: '', type: 'FEATURE', priority: 'MEDIUM' };
 
 // ── Tarjeta de tarea ──────────────────────────────────────────────────
 interface TaskCardProps {
@@ -97,7 +97,11 @@ const SoftwareWorkspace = () => {
   const handleAddTask = async (data: CreateTaskPayload) => {
     if (!activeProject) return;
     setAddingTask(true);
-    try { setTasks((prev) => [await taskService.createTask(activeProject.id, data), ...prev]); setShowForm(false); }
+    try {
+      const newTask = await taskService.createTask(activeProject.id, data);
+      setTasks((prev) => [newTask, ...prev]);
+      setShowForm(false);
+    }
     finally { setAddingTask(false); }
   };
 

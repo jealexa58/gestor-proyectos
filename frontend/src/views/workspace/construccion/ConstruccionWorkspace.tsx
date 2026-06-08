@@ -124,7 +124,11 @@ const ConstruccionWorkspace = () => {
   const handleAddHito = async (data: CreateHitoPayload) => {
     if (!activeProject) return;
     setAddingHito(true);
-    try { setHitos((prev) => [...prev, await hitoService.createHito(activeProject.id, data)]); setShowForm(false); }
+    try {
+      const newHito = await hitoService.createHito(activeProject.id, data);
+      setHitos((prev) => [...prev, newHito]);
+      setShowForm(false);
+    }
     finally { setAddingHito(false); }
   };
 

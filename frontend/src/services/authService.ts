@@ -1,4 +1,4 @@
-import api from './api';
+import { api } from './api';
 import type { AuthResponse, User } from '../types';
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== 'false';
