@@ -53,7 +53,7 @@ const CreateProjectView = () => {
     setIsLoading(true);
     try {
       const payload: CreateProjectPayload = { ...form, budget: Number(form.budget), sector: form.sector as Sector };
-      const created = await projectService.create(payload);
+      const created = await projectService.createProject(payload);
       addProject(created);
       selectProject(created);
       navigate(`/workspace/${created.id}`);

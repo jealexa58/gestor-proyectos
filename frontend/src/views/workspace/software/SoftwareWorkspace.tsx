@@ -89,7 +89,7 @@ const SoftwareWorkspace = () => {
   useEffect(() => {
     if (!activeProject) return;
     (async () => {
-      try { setTasks(await taskService.getByProject(activeProject.id)); }
+      try { setTasks(await taskService.getTasksByProject(activeProject.id)); }
       finally { setIsLoading(false); }
     })();
   }, [activeProject]);
@@ -97,18 +97,18 @@ const SoftwareWorkspace = () => {
   const handleAddTask = async (data: CreateTaskPayload) => {
     if (!activeProject) return;
     setAddingTask(true);
-    try { setTasks((prev) => [await taskService.create(activeProject.id, data), ...prev]); setShowForm(false); }
+    try { setTasks((prev) => [await taskService.createTask(activeProject.id, data), ...prev]); setShowForm(false); }
     finally { setAddingTask(false); }
   };
 
   const handleStatusChange = async (taskId: string, status: TaskStatus) => {
     setTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status } : t));
-    await taskService.updateStatus(taskId, status);
+    await taskService.updateTask(taskId, { status });
   };
 
   const handleDelete = async (taskId: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    await taskService.remove(taskId);
+    await taskService.deleteTask(taskId);
   };
 
   if (isLoading) return <LoadingSpinner text="Cargando backlog..." />;

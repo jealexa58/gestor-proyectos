@@ -1,9 +1,10 @@
-// ── Auth ──────────────────────────────────────────────────────────────
+// ==========================================
+// AUTENTICACIÓN Y USUARIOS
+// ==========================================
 export interface User {
   id: string;
   name: string;
   email: string;
-  createdAt?: string;
 }
 
 export interface AuthResponse {
@@ -11,7 +12,9 @@ export interface AuthResponse {
   token: string;
 }
 
-// ── Proyectos ─────────────────────────────────────────────────────────
+// ==========================================
+// PROYECTOS
+// ==========================================
 export type Sector = 'SOFTWARE' | 'CONSTRUCCION';
 
 export interface Project {
@@ -21,39 +24,40 @@ export interface Project {
   budget: number;
   endDate: string;
   sector: Sector;
-  createdAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface CreateProjectPayload {
-  name: string;
-  client: string;
-  budget: number;
-  endDate: string;
-  sector: Sector;
-}
-
-// ── Sector SOFTWARE ───────────────────────────────────────────────────
-export type TaskStatus   = 'BACKLOG' | 'TODO' | 'IN_PROGRESS' | 'DONE';
-export type TaskType     = 'FEATURE' | 'BUG' | 'TASK';
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+// ==========================================
+// SECTOR: SOFTWARE (Kanban y Tareas Ágiles)
+// ==========================================
+// Nota: Se incluyen valores en español/inglés para soportar tanto los mocks del frontend como la base del backend
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'BACKLOG';
+export type TaskType = 'FEATURE' | 'BUG' | 'TAREA' | 'TASK';
+export type TaskPriority = 'ALTA' | 'MEDIA' | 'BAJA' | 'HIGH' | 'MEDIUM' | 'LOW';
 
 export interface Task {
   id: string;
   projectId: string;
   title: string;
-  type: TaskType;
+  description?: string;
   status: TaskStatus;
+  type: TaskType;
   priority: TaskPriority;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateTaskPayload {
   title: string;
+  description?: string;
   type: TaskType;
-  status: TaskStatus;
   priority: TaskPriority;
 }
 
-// ── Sector CONSTRUCCION ───────────────────────────────────────────────
+// ==========================================
+// SECTOR: CONSTRUCCIÓN (Hitos y Materiales)
+// ==========================================
 export type HitoStatus = 'PENDIENTE' | 'EN_CURSO' | 'COMPLETADO';
 
 export interface Hito {
@@ -70,17 +74,16 @@ export interface CreateHitoPayload {
   name: string;
   startDate: string;
   endDate: string;
-  status?: HitoStatus;
 }
 
-export type MaterialType   = 'MATERIAL' | 'PLANO';
+export type MaterialType = 'MATERIAL' | 'PLANO';
 export type MaterialStatus = 'SOLICITADO' | 'EN_CAMINO' | 'RECIBIDO';
 
 export interface Material {
   id: string;
   projectId: string;
-  name: string;
   type: MaterialType;
+  name: string;
   quantity: number | null;
   unit: string | null;
   status: MaterialStatus;

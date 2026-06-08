@@ -27,7 +27,7 @@ const DashboardView = () => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await projectService.getAll();
+        const data = await projectService.getProjects();
         loadProjects(data);
       } catch { setError('No se pudieron cargar los proyectos.'); }
       finally   { setIsLoading(false); }
@@ -42,7 +42,7 @@ const DashboardView = () => {
   const handleDelete = async (e: MouseEvent, projectId: string) => {
     e.stopPropagation();
     if (!confirm('¿Eliminar este proyecto?')) return;
-    await projectService.remove(projectId);
+    await projectService.deleteProject(projectId);
     removeProject(projectId);
   };
 
@@ -53,13 +53,13 @@ const DashboardView = () => {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm text-gray-500">{projects.length} {projects.length === 1 ? 'proyecto' : 'proyectos'}</p>
-        <Button size="sm" onClick={() => navigate('/proyecto/nuevo')}>+ Nuevo proyecto</Button>
+        <Button size="sm" onClick={() => navigate('/projects/new')}>+ Nuevo proyecto</Button>
       </div>
 
       {projects.length === 0 ? (
         <div className="text-center py-24 bg-white rounded-2xl border border-dashed border-gray-200">
           <p className="text-gray-400 text-sm mb-3">Sin proyectos aún</p>
-          <Button size="sm" onClick={() => navigate('/proyecto/nuevo')}>Crea tu primer proyecto</Button>
+          <Button size="sm" onClick={() => navigate('/projects/new')}>Crea tu primer proyecto</Button>
         </div>
       ) : (
         <div className="grid gap-3">

@@ -1,40 +1,41 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User }     from './users/entities/user.entity';
-import { Project }  from './projects/entities/project.entity';
-import { Task }     from './tasks/entities/task.entity';
-import { Hito }     from './hitos/entities/hito.entity';
-import { Material } from './hitos/entities/material.entity';
-import { AuthModule }     from './auth/auth.module';
-import { UsersModule }    from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { ProjectsModule } from './projects/projects.module';
-import { TasksModule }    from './tasks/tasks.module';
-import { HitosModule }    from './hitos/hitos.module';
+import { TasksModule } from './tasks/tasks.module';
+import { HitosModule } from './hitos/hitos.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-
+    // Configuración global para variables de entorno (.env)
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    // Configuración asíncrona de TypeORM
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host:     config.get('DB_HOST',     'localhost'),
-        port:     config.get<number>('DB_PORT', 5432),
-        username: config.get('DB_USER',     'postgres'),
-        password: config.get('DB_PASSWORD', 'postgres'),
-        database: config.get('DB_NAME',     'gestorproyectos'),
-        entities:    [User, Project, Task, Hito, Material],
-        synchronize: true, // solo para desarrollo — usar migraciones en producción
+        url: configService.get<string>('DATABASE_URL'), // Railway usa esto principalmente
+        host: configService.get<string>('DB_HOST', 'localhost'),
+        port: configService.get<number>('DB_PORT', 5432),
+        username: configService.get<string>('DB_USER', 'postgres'),
+        password: configService.get<string>('DB_PASSWORD', 'postgres'),
+        database: configService.get<string>('DB_NAME', 'gestorproyectos'),
+        autoLoadEntities: true, // Carga automáticamente las entidades (User, Project, Task, etc.)
+        synchronize: true, // Sincroniza las entidades con la base de datos (¡Solo para desarrollo!)
       }),
     }),
-
     AuthModule,
     UsersModule,
     ProjectsModule,
     TasksModule,
     HitosModule,
   ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

@@ -1,26 +1,27 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
 
 export enum TaskStatus {
-  BACKLOG     = 'BACKLOG',
-  TODO        = 'TODO',
+  BACKLOG = 'BACKLOG',
+  TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
-  DONE        = 'DONE',
+  DONE = 'DONE',
 }
 
 export enum TaskType {
   FEATURE = 'FEATURE',
-  BUG     = 'BUG',
-  TASK    = 'TASK',
+  BUG = 'BUG',
+  TAREA = 'TAREA',
+  TASK = 'TASK',
 }
 
 export enum TaskPriority {
-  LOW    = 'LOW',
+  BAJA = 'BAJA',
+  MEDIA = 'MEDIA',
+  ALTA = 'ALTA',
+  LOW = 'LOW',
   MEDIUM = 'MEDIUM',
-  HIGH   = 'HIGH',
+  HIGH = 'HIGH',
 }
 
 @Entity('tasks')
@@ -31,13 +32,16 @@ export class Task {
   @Column()
   title: string;
 
-  @Column({ type: 'enum', enum: TaskType, default: TaskType.TASK })
-  type: TaskType;
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-  @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.BACKLOG })
+  @Column({ type: 'enum', enum: TaskStatus, default: TaskStatus.TODO })
   status: TaskStatus;
 
-  @Column({ type: 'enum', enum: TaskPriority, default: TaskPriority.MEDIUM })
+  @Column({ type: 'enum', enum: TaskType, default: TaskType.TAREA })
+  type: TaskType;
+
+  @Column({ type: 'enum', enum: TaskPriority, default: TaskPriority.MEDIA })
   priority: TaskPriority;
 
   @Column()
@@ -46,4 +50,10 @@ export class Task {
   @ManyToOne(() => Project, (project) => project.tasks, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
   project: Project;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

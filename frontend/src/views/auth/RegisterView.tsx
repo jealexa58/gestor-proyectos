@@ -4,68 +4,82 @@ import { useAuth } from '../../hooks/useAuth';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 
-interface RegisterForm { name: string; email: string; password: string; confirm: string; }
-type FieldErrors = Partial<RegisterForm>;
+interface FormState { name: string; email: string; password: string; }
+type FieldErrors = Partial<FormState>;
+
+const INITIAL_FORM_STATE: FormState = { name: '', email: '', password: '' };
 
 const RegisterView = () => {
-  const { register, isLoading, error, clearError } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm]               = useState<RegisterForm>({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm]               = useState<FormState>(INITIAL_FORM_STATE);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [apiError, setApiError]       = useState<string | null>(null);
+  const [isLoading, setIsLoading]     = useState(false);
 
   const validate = (): FieldErrors => {
-    const errs: FieldErrors = {};
-    if (!form.name)                    errs.name     = 'El nombre es requerido';
-    if (!form.email)                   errs.email    = 'El correo es requerido';
-    if (form.password.length < 6)      errs.password = 'Mínimo 6 caracteres';
-    if (form.password !== form.confirm) errs.confirm = 'Las contraseñas no coinciden';
-    return errs;
+    const errors: FieldErrors = {};
+    if (!form.name.trim()) {
+      errors.name = 'El nombre es requerido';
+    }
+    if (!form.email.trim()) {
+      errors.email = 'El correo electrónico es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      errors.email = 'El correo electrónico no es válido';
+    }
+    if (!form.password.trim()) {
+      errors.password = 'La contraseña es requerida';
+    } else if (form.password.trim().length < 6) {
+      errors.password = 'La contraseña debe tener al menos 6 caracteres';
+    }
+    return errors;
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    clearError(); setFieldErrors({});
+    setFieldErrors({}); // Clear errors on change
+    setApiError(null);
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) { setFieldErrors(errs); return; }
-    const result = await register({ name: form.name, email: form.email, password: form.password });
-    if (result.success) navigate('/dashboard');
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await register(form);
+      navigate('/dashboard'); // Redirect to dashboard on successful registration
+    } catch (err: any) {
+      setApiError(err.response?.data?.message || 'Error al registrar. Inténtalo de nuevo.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-full flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-2 h-7 bg-indigo-600 rounded-full" />
-            <span className="text-xl font-bold text-gray-900">GestorPro</span>
-          </div>
-          <p className="text-sm text-gray-500">Crea tu cuenta gratis</p>
-        </div>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          {error && (
-            <div className="mb-4 px-4 py-2.5 rounded-lg bg-red-50 border border-red-100 text-sm text-red-600">{error}</div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <Input id="name" name="name" label="Nombre completo" placeholder="Ana García"
-              value={form.name} onChange={handleChange} error={fieldErrors.name} />
-            <Input id="email" name="email" type="email" label="Correo electrónico" placeholder="ana@empresa.com"
-              value={form.email} onChange={handleChange} error={fieldErrors.email} />
-            <Input id="password" name="password" type="password" label="Contraseña" placeholder="Mínimo 6 caracteres"
-              value={form.password} onChange={handleChange} error={fieldErrors.password} />
-            <Input id="confirm" name="confirm" type="password" label="Confirmar contraseña" placeholder="••••••••"
-              value={form.confirm} onChange={handleChange} error={fieldErrors.confirm} />
-            <Button type="submit" fullWidth loading={isLoading} className="mt-2">Crear cuenta</Button>
-          </form>
-          <p className="text-center text-xs text-gray-400 mt-5">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-indigo-600 font-medium hover:underline">Inicia sesión</Link>
-          </p>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-100 shadow-sm p-8 space-y-6">
+        <h2 className="text-3xl font-bold text-gray-900 text-center">Crea tu cuenta</h2>
+        {apiError && (
+          <div className="bg-red-50 border border-red-100 text-sm text-red-600 px-4 py-2.5 rounded-lg">{apiError}</div>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <Input id="name" name="name" type="text" label="Nombre completo" placeholder="Juan Pérez"
+            value={form.name} onChange={handleChange} error={fieldErrors.name} />
+          <Input id="email" name="email" type="email" label="Correo electrónico" placeholder="tu@ejemplo.com"
+            value={form.email} onChange={handleChange} error={fieldErrors.email} />
+          <Input id="password" name="password" type="password" label="Contraseña" placeholder="********"
+            value={form.password} onChange={handleChange} error={fieldErrors.password} />
+          <Button type="submit" loading={isLoading} fullWidth>Regístrate →</Button>
+        </form>
+        <p className="text-center text-sm text-gray-600">
+          ¿Ya tienes una cuenta? <Link to="/login" className="font-semibold text-slate-700 hover:text-slate-900">Inicia sesión</Link>
+        </p>
       </div>
     </div>
   );

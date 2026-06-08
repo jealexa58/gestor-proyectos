@@ -1,12 +1,9 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
 
 export enum HitoStatus {
-  PENDIENTE  = 'PENDIENTE',
-  EN_CURSO   = 'EN_CURSO',
+  PENDIENTE = 'PENDIENTE',
+  EN_CURSO = 'EN_CURSO',
   COMPLETADO = 'COMPLETADO',
 }
 
@@ -27,7 +24,7 @@ export class Hito {
   @Column({ type: 'date' })
   endDate: string;
 
-  @Column({ type: 'int', default: 0 })
+  @Column('numeric', { precision: 5, scale: 2, default: 0 })
   progress: number;
 
   @Column()
@@ -36,4 +33,10 @@ export class Hito {
   @ManyToOne(() => Project, (project) => project.hitos, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
   project: Project;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

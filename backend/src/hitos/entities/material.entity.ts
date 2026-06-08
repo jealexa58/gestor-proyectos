@@ -1,18 +1,15 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Project } from '../../projects/entities/project.entity';
 
 export enum MaterialType {
   MATERIAL = 'MATERIAL',
-  PLANO    = 'PLANO',
+  PLANO = 'PLANO',
 }
 
 export enum MaterialStatus {
   SOLICITADO = 'SOLICITADO',
-  EN_CAMINO  = 'EN_CAMINO',
-  RECIBIDO   = 'RECIBIDO',
+  EN_CAMINO = 'EN_CAMINO',
+  RECIBIDO = 'RECIBIDO',
 }
 
 @Entity('materiales')
@@ -26,7 +23,7 @@ export class Material {
   @Column({ type: 'enum', enum: MaterialType })
   type: MaterialType;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column('numeric', { nullable: true })
   quantity: number;
 
   @Column({ nullable: true })
@@ -41,4 +38,10 @@ export class Material {
   @ManyToOne(() => Project, (project) => project.materiales, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'projectId' })
   project: Project;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

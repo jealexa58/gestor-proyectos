@@ -1,48 +1,41 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider }    from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { ProjectProvider } from './contexts/ProjectContext';
-import { useAuth }         from './hooks/useAuth';
-import AppLayout           from './components/layout/AppLayout';
-import LoginView           from './views/auth/LoginView';
-import RegisterView        from './views/auth/RegisterView';
-import DashboardView       from './views/dashboard/DashboardView';
-import CreateProjectView   from './views/project/CreateProjectView';
-import WorkspaceView       from './views/workspace/WorkspaceView';
-import type { ReactNode }  from 'react';
+import PrivateRoute from './views/auth/PrivateRoute';
 
-const PrivateRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
+// Vistas de Autenticación
+import LoginView from './views/auth/LoginView';
+import RegisterView from './views/auth/RegisterView';
 
-const PublicRoute = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
-};
+// Vistas Privadas (Ajusta las rutas de importación según tu estructura actual)
+import DashboardView from './views/dashboard/DashboardView'; 
+import CreateProjectView from './views/project/CreateProjectView';
+import WorkspaceView from './views/workspace/WorkspaceView';
 
-const AppRoutes = () => (
-  <Routes>
-    <Route path="/login"    element={<PublicRoute><LoginView /></PublicRoute>} />
-    <Route path="/register" element={<PublicRoute><RegisterView /></PublicRoute>} />
-
-    <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-      <Route path="/dashboard"            element={<DashboardView />} />
-      <Route path="/proyecto/nuevo"       element={<CreateProjectView />} />
-      <Route path="/workspace/:projectId" element={<WorkspaceView />} />
-    </Route>
-
-    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-  </Routes>
-);
-
-const App = () => (
-  <BrowserRouter>
+function App() {
+  return (
     <AuthProvider>
       <ProjectProvider>
-        <AppRoutes />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <Routes>
+            {/* Rutas Públicas */}
+            <Route path="/login" element={<LoginView />} />
+            <Route path="/register" element={<RegisterView />} />
+
+            {/* Rutas Privadas */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/dashboard" element={<DashboardView />} />
+              <Route path="/projects/new" element={<CreateProjectView />} />
+              <Route path="/workspace/:id" element={<WorkspaceView />} />
+            </Route>
+
+            {/* Redirección por defecto: Si entra a '/' o una ruta que no existe, se va al dashboard (o al login si no está autenticado) */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </BrowserRouter>
       </ProjectProvider>
     </AuthProvider>
-  </BrowserRouter>
-);
+  );
+}
 
 export default App;

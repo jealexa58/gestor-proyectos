@@ -4,7 +4,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size    = 'sm' | 'md' | 'lg';
 
 const VARIANTS: Record<Variant, string> = {
-  primary:   'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800',
+  primary:   'bg-slate-800 text-white hover:bg-slate-900 active:bg-slate-950',
   secondary: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50',
   ghost:     'text-gray-500 hover:bg-gray-100',
   danger:    'bg-red-50 text-red-600 hover:bg-red-100',
@@ -33,7 +33,7 @@ const Button = ({
     className={[
       'inline-flex items-center justify-center gap-2 rounded-lg font-medium',
       'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2',
-      'focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
+      'focus-visible:ring-slate-500 focus-visible:ring-offset-2',
       'disabled:opacity-50 disabled:cursor-not-allowed active:scale-[.98]',
       VARIANTS[variant], SIZES[size],
       fullWidth ? 'w-full' : '',
